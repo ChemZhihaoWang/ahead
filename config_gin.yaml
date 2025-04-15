@@ -1,0 +1,35 @@
+batch_size: 4
+lr: 0.0001  # learning rate
+epochs: 100
+weight_decay: 1e-4
+gamma: 0.1  # gamma for learning rate scheduler
+lr_scheduler: 'ReduceLROnPlateau'  # choices: StepLR, ExponentialLR, CosineAnnealingLR, ReduceLROnPlateau
+plateau_patience: 5  # patience for ReduceLROnPlateau
+plateau_threshold: 1e-2  # threshold for ReduceLROnPlateau
+train_ratio: 0.7
+val_ratio: 0.15
+test_ratio: 0.15
+dropout_rate: 0.15
+pretrained: true
+gpu_id: 0
+# Model-specific parameters
+model: 'gin'  # choices: resnet, vit, gin, moe
+hidden_dim_1: 64  # First hidden layer dimension for GIN
+hidden_dim_2: 256 # Second hidden layer dimension for GIN
+hidden_dim_3: 512 # Third hidden layer dimension for GIN
+hidden_dim_4: 256  # Fourth hidden layer dimension for GIN
+hidden_dim_5: 32  # Fifth hidden layer dimension for GIN
+# Early stopping parameters
+early_stopping_patience: 10
+early_stopping_delta: 5e-4
+# Other parameters
+disable_cuda: false
+
+# Paths for training and saving results
+train_images: '/home/wangzh/hydro_channel/hydro_channel/dataset/hydrofig'
+train_annotations: '/home/wangzh/hydro_channel/hydro_channel/dataset/hydrofile.csv'
+# train_images: '/home/wangzh/hydro_channel/hydro_channel/dataset/sampling_600'
+# train_annotations: '/home/wangzh/hydro_channel/hydro_channel/dataset/sampling_600.csv'
+log_path: '/home/wangzh/hydro_channel/hydro_channel/experiments/gin/logs/train_log.txt'
+test_images_folder: '/home/wangzh/hydro_channel/hydro_channel/dataset/test_images'
+random_images_folder: '/home/wangzh/hydro_channel/hydro_channel/dataset/randomfig_11000'
