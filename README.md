@@ -90,6 +90,7 @@ The script will:
 To run training and evaluation:
 ```bash
 python main.py --config config_*.yaml
+nohup python main.py --config config_*.yaml > output_*.log 2>&1 &
 ```
 
 ### Supported Models
