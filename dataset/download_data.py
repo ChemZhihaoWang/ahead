@@ -17,9 +17,10 @@ GOOGLE_DRIVE_CONFIG = {
         "sampling_600": "11nkDF3w3EPr8kCcCDd_yqZ0D2TKtnO1b",
         "sampling_800": "15LxWGrn1FEZJklAMmx7Gr8onHScgxfx8",
         "hydrofig": "1NanEfr0znX133owEkAzKvn9wmY_LvtRN",
+        "ood_fig": "1zHb0svk11OXj44MJV20gGD-e-m4Db_7L",
         "SISSO": "18y7Ja3RwXjyfLZaBFPg7xOrKypr8uDTO",
         "test_images": "1hLXuxq7uFXe9Ly7y1lanYWaMqJpedjww",
-        "label": "1FO5F20xZdC9MysnDQmvdofx-GUZhiHek",
+        "label": "1F11Wtyrr3dSJPJ1oyrqgKvaRWlJ9tQ_A",
         "correlation": "1ll8DtXIIwrtlW6CnJ67vC7N6ouOUqPv_",
         "randomfig_100w": "1kXxXIs_uT4msnK317y8V1clvTv-2oMAd"
     }
