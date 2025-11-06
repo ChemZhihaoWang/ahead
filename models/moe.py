@@ -7,7 +7,6 @@ class ImageGatingNetwork(nn.Module):
     - Small CNN to preserve spatial inductive bias
     - Global average pooling to 1x1
     - Linear -> Softmax to produce expert weights
-    CNN3
     """
     def __init__(self, num_experts: int, in_channels: int = 3):
         super().__init__()
