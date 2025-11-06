@@ -1,35 +1,59 @@
 import torch
 import torch.nn as nn
-from transformers import BertModel
 
-class TransformerGatingNetwork(nn.Module):
-    def __init__(self, num_experts, input_dim, embedding_dim=768):
-        super(TransformerGatingNetwork, self).__init__()
-        self.transformer = BertModel.from_pretrained(r'/home/wangzh/.cache/huggingface/bert-base-uncased')
-        self.fc = nn.Sequential(
-            nn.Linear(embedding_dim, num_experts),  # Mapping from Transformer output to experts
-            nn.Softmax(dim=1)
+class ImageGatingNetwork(nn.Module):
+    """
+    Lightweight visual gating network:
+    - Small CNN to preserve spatial inductive bias
+    - Global average pooling to 1x1
+    - Linear -> Softmax to produce expert weights
+    CNN3
+    """
+    def __init__(self, num_experts: int, in_channels: int = 3):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(in_channels, 32, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(inplace=True),
         )
-        self.input_projection = nn.Linear(input_dim, embedding_dim)  # Map inputs to Transformer's embedding dimensions
+        self.norm = nn.LayerNorm(256)
+        self.dropout = nn.Dropout(p=0.1)
+        self.fc = nn.Linear(256, num_experts)
+        # Learnable temperature (softplus keeps it positive, add floor for stability)
+        self.log_tau = nn.Parameter(torch.zeros(1))
+        self.min_tau = 0.3
+        # Learnable smoothing factor (sigmoid keeps it in [0,1])
+        self.logit_smooth = nn.Parameter(torch.tensor(-2.1972))  # ~0.1 initial smoothing
 
-    def forward(self, x):
-        x = x.view(x.size(0), -1)  
-        x = self.input_projection(x) 
-        x = x.unsqueeze(1)  
-        
-        # Transformer Processing Sequence
-        transformer_output = self.transformer(inputs_embeds=x).last_hidden_state 
-        
-        # Use the output of the first position to generate weights
-        gating_weights = self.fc(transformer_output[:, 0, :]) 
-        return gating_weights
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: B x C x H x W (same as experts' input)
+        feat = self.features(x)                  # B x 128 x H' x W'
+        gap = feat.mean(dim=(2, 3))              # B x 128
+        gmp = feat.amax(dim=(2, 3))              # B x 128
+        h = torch.cat([gap, gmp], dim=1)         # B x 256
+        h = self.norm(h)
+        h = self.dropout(h)
+        logits = self.fc(h)                       # B x num_experts
+
+        tau = torch.nn.functional.softplus(self.log_tau) + self.min_tau
+        weights = torch.softmax(logits / tau, dim=1)
+
+        smooth = torch.sigmoid(self.logit_smooth)
+        if smooth.item() > 0:
+            uniform = torch.ones_like(weights) / weights.size(1)
+            weights = (1 - smooth) * weights + smooth * uniform
+        return weights
 
 class MoEModel(nn.Module):
     def __init__(self, experts, input_dim):
         super(MoEModel, self).__init__()
         self.experts = nn.ModuleList(experts)
         self.num_experts = len(experts)
-        self.gating_network = TransformerGatingNetwork(num_experts=self.num_experts, input_dim=input_dim)
+        # Use lightweight visual gating; keep input_dim for backward compatibility (unused)
+        self.gating_network = ImageGatingNetwork(num_experts=self.num_experts)
 
     def forward(self, x):
 
