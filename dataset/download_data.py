@@ -6,7 +6,6 @@ import requests
 import shutil
 from tqdm import tqdm
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Google Drive configuration
