@@ -24,8 +24,8 @@ This codebase is developed for the paper "Machine learning-driven discovery of o
 ## Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/ChemZhihaoWang/hydro_channel.git
-cd hydro_channel
+git clone https://github.com/ChemZhihaoWang/ahead.git
+cd ahead
 ```
 
 2. Create and activate Conda environment:
